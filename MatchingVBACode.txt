@@ -1,0 +1,45 @@
+Sub UpdateMatchingSheet()
+    Dim wsMatch As Worksheet, wsPos As Worksheet, wsFleet As Worksheet, wsFix As Worksheet
+    Dim cell As Range, fleetRow As Range, fixRow As Range
+    Dim matchRow As Long
+
+    ' Set references to the worksheets
+    Set wsMatch = ThisWorkbook.Sheets("1. Matching Sheet")
+    Set wsPos = ThisWorkbook.Sheets("2. Positions")
+    Set wsFleet = ThisWorkbook.Sheets("3. Fleet list")
+    Set wsFix = ThisWorkbook.Sheets("4. FIxtures")
+    
+    ' Clear any data from previous runs, but keep headers
+    wsMatch.Range("A2:M800" & wsMatch.Cells(wsMatch.Rows.Count, "M").End(xlUp).Row).ClearContents
+
+    ' For each vessel in the Positions sheet
+    For Each cell In wsPos.Range("A2:A" & wsPos.Cells(wsPos.Rows.Count, "A").End(xlUp).Row)
+        ' Find the matching vessel in the Fleet list sheet
+        For Each fleetRow In wsFleet.Range("B2:B" & wsFleet.Cells(wsFleet.Rows.Count, "B").End(xlUp).Row)
+            If fleetRow.Value = cell.Value Then
+                matchRow = wsMatch.Cells(wsMatch.Rows.Count, "A").End(xlUp).Row + 1
+                ' Copy values from Positions to Matching sheet
+                wsMatch.Range("A" & matchRow & ":D" & matchRow).Value = wsPos.Range("A" & cell.Row & ":D" & cell.Row).Value
+                ' Copy ETA from Positions to Matching sheet
+                wsMatch.Range("E" & matchRow).Value = wsPos.Range("E" & cell.Row).Value
+                ' Copy values from Fleet list to Matching sheet
+                wsMatch.Range("F" & matchRow).Value = wsFleet.Range("A" & fleetRow.Row).Value
+                wsMatch.Range("G" & matchRow).Value = wsFleet.Range("D" & fleetRow.Row).Value
+                wsMatch.Range("H" & matchRow).Value = wsFleet.Range("H" & fleetRow.Row).Value
+            End If
+        Next fleetRow
+
+        ' Find the matching vessel in the Fixtures sheet
+        For Each fixRow In wsFix.Range("A2:A" & wsFix.Cells(wsFix.Rows.Count, "A").End(xlUp).Row)
+            If fixRow.Value = cell.Value Then
+                ' Copy values from Fixtures to Matching sheet
+                wsMatch.Range("I" & matchRow).Value = wsFix.Range("C" & fixRow.Row).Value
+                wsMatch.Range("J" & matchRow).Value = wsFix.Range("D" & fixRow.Row).Value
+                wsMatch.Range("K" & matchRow).Value = wsFix.Range("E" & fixRow.Row).Value
+                wsMatch.Range("L" & matchRow).Value = wsFix.Range("G" & fixRow.Row).Value
+                wsMatch.Range("M" & matchRow).Value = wsFix.Range("H" & fixRow.Row).Value
+            End If
+        Next fixRow
+    Next cell
+End Sub
+
